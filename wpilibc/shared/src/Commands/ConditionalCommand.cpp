@@ -8,28 +8,34 @@
 #include "Commands/ConditionalCommand.h"
 	/**
 	 * Creates a new ConditionalCommand with given onTrue and onFalse Commands
+	 * @param condition a pointer to a parameterless function that returns a bool
 	 * @param onTrue The Command to execute if {@link ConditionalCommand#Condition()} returns true
 	 * @param onFalse The Command to execute if {@link ConditionalCommand#Condition()} returns false
 	 */
-ConditionalCommand::ConditionalCommand(Command *onTrue, Command *onFalse){
+ConditionalCommand::ConditionalCommand(bool (*condition)(),Command *onTrue, Command *onFalse){
 	m_onTrue = onTrue;
 	m_onFalse = onFalse;
+	m_condition = condition;
 }
 /**
  * Creates a new ConditionalCommand with given onTrue and onFalse Commands
  * @param name the name for this command group
+ * @param condition a pointer to a parameterless function that returns a bool
  * @param onTrue The Command to execute if {@link ConditionalCommand#Condition()} returns true
  * @param onFalse The Command to execute if {@link ConditionalCommand#Condition()} returns false
  */
-ConditionalCommand::ConditionalCommand(const std::string &name, Command *onTrue, Command *onFalse) : Command(name){
+ConditionalCommand::ConditionalCommand(const std::string &name,bool (*condition)(), Command *onTrue, Command *onFalse) : Command(name){
 	m_onTrue = onTrue;
 	m_onFalse = onFalse;
+	m_condition = condition;
 }
 
 bool ConditionalCommand::IsFinished(){
 	return m_isFinished;
 }
-
+bool ConditionalCommand::Condition(){
+	return (*m_condition)();
+}
 void ConditionalCommand::_Initialize(){
 	if(Condition()){
 		Scheduler::GetInstance() ->AddCommand(m_onTrue);

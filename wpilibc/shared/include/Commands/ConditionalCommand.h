@@ -13,7 +13,7 @@
  * A {@link ConditionalCommand} is a {@link Command} that starts one of two commands
  *
  * <p>
- * A {@link ConditionalCommand} uses {@link ConditionalCommand#Condition()} to determine whether it should run
+ * A {@link ConditionalCommand} uses {@link ConditionalCommand#Condition} to determine whether it should run
  * {@link ConditionalCommand#m_onTrue} or {@link ConditionalCommand#m_onFalse}.
  * </p>
  *
@@ -29,11 +29,11 @@
  */
 class ConditionalCommand : public Command {
 public:
-	ConditionalCommand(Command *onTrue, Command *onFalse);
-	ConditionalCommand(const std::string &name, Command *onTrue, Command *onFalse);
+	ConditionalCommand(bool (*condition)(),Command *onTrue, Command *onFalse);
+	ConditionalCommand(const std::string &name,bool (*condition)(), Command *onTrue, Command *onFalse);
 	virtual ~ConditionalCommand() = default;
 protected:
-	virtual bool Condition() = 0;
+	virtual bool Condition();
 	virtual void _Initialize();
 	virtual void Initialize();
 	virtual void Execute();
@@ -47,4 +47,6 @@ private:
 	Command *m_onFalse;
 	/** Keeps track of if the command has finished*/
 	bool m_isFinished = false;
+	/** The condition to use to determine which Command should be run*/
+	bool (*m_condition)();
 };

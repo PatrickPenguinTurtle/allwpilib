@@ -6,19 +6,28 @@
 /*----------------------------------------------------------------------------*/
 
 #include "Commands/Scheduler.h"
-#include "command/MockConditionalCommand.h"
+#include "Commands/ConditionalCommand.h"
+#include "command/MockCommand.h"
 #include "gtest/gtest.h"
 #include <DriverStation.h>
 #include <RobotState.h>
 
+bool condition = true;
+bool GetCondition(){
+	return condition;
+}
 class ConditionalCommandTest : public testing::Test {
+public:
+  ConditionalCommand *command;
+  MockCommand *onTrue, *onFalse;
 protected:
   virtual void SetUp() override {
+	condition = true;
     RobotState::SetImplementation(DriverStation::GetInstance());
     Scheduler::GetInstance()->SetEnabled(true);
     onTrue = new MockCommand();
     onFalse = new MockCommand();
-    command = new MockConditionalCommand(onTrue, onFalse);
+    command = new ConditionalCommand(GetCondition,onTrue, onFalse);
   }
 
   virtual void TearDown() override {
@@ -33,13 +42,10 @@ protected:
    * is called outside of the scope of the test.
    */
   void TeardownScheduler() { Scheduler::GetInstance()->ResetAll(); }
-public:
-  MockConditionalCommand *command;
-  MockCommand *onTrue, *onFalse;
-};
 
+};
 TEST_F(ConditionalCommandTest, TestOnTrue){
-	command -> SetCondition(true);
+	condition = true;;
 	Scheduler::GetInstance() -> AddCommand(command);
 	Scheduler::GetInstance() -> Run();
 	Scheduler::GetInstance() -> Run();
@@ -51,7 +57,7 @@ TEST_F(ConditionalCommandTest, TestOnTrue){
 }
 
 TEST_F(ConditionalCommandTest, TestOnFalse){
-	command -> SetCondition(false);
+	condition = false;
 	Scheduler::GetInstance() -> AddCommand(command);
 	Scheduler::GetInstance() -> Run();
 	Scheduler::GetInstance() -> Run();

@@ -7,25 +7,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.wpi.first.wpilibj.mocks.MockCommand;
-import edu.wpi.first.wpilibj.mocks.MockConditionalCommand;
 
 public class ConditionalCommandTest extends AbstractCommandTest {
 	private static final Logger logger = Logger.getLogger(ConditionalCommandTest.class.getName());
-	MockConditionalCommand command;
+	ConditionalCommand command;
 	MockCommand onTrue, onFalse;
+	Boolean state;
 	@Override
 	protected Logger getClassLogger() {
 		return logger;
 	}
 	@Before
 	public void initCommands(){
+		state = new Boolean(true);
 		onTrue = new MockCommand();
 		onFalse = new MockCommand();
-		command = new MockConditionalCommand(onTrue, onFalse);
+		command = new ConditionalCommand(() -> this.state, onTrue, onFalse);
 	}
 	@Test
 	public void testOnTrue(){
-		command.setCondition(true);
+		state = true;
 		Scheduler.getInstance().add(command);
 		Scheduler.getInstance().run();//init command and select onTrue
 		Scheduler.getInstance().run();//init onTrue
@@ -36,7 +37,7 @@ public class ConditionalCommandTest extends AbstractCommandTest {
 	}
 	@Test
 	public void testOnFalse(){
-		command.setCondition(false);
+		state = false;
 		Scheduler.getInstance().add(command);
 		Scheduler.getInstance().run();//init command and select onFalse
 		Scheduler.getInstance().run();//init onFalse
